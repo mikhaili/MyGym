@@ -13,14 +13,29 @@ import org.junit.Assert.*
  */
 class MainViewModelTest {
     @Test
-    fun test_0_days_and_reinit() {
-        val repo = FakeRepository(0)
+    fun test_reset() {
+        val repo = FakeRepository.Base(5)
         val communication = FakeMainCommunication.Base()
 
         val viewModel = MainViewModel(repo, communication)
         viewModel.init(isFirstRun = true)
         assertEquals(true, communication.checkCalledCount(1))
-        assertEquals(true, communication.isSame(UiState.ZeroDays))
+        assertEquals(true, communication.isSame(UiState.NDays(5)))
+        viewModel.reset()
+        assertEquals(true, repo.checkResetCalledCount(1))
+        assertEquals(true, communication.checkCalledCount(2))
+        assertEquals(true, communication.isSame(UiState.ZeroDays()))
+    }
+
+    @Test
+    fun test_0_days_and_reinit() {
+        val repo = FakeRepository.Base(0)
+        val communication = FakeMainCommunication.Base()
+
+        val viewModel = MainViewModel(repo, communication)
+        viewModel.init(isFirstRun = true)
+        assertEquals(true, communication.checkCalledCount(1))
+        assertEquals(true, communication.isSame(UiState.ZeroDays()))
 
         viewModel.init(isFirstRun = false)
         assertEquals(true, communication.checkCalledCount(1))
@@ -28,7 +43,7 @@ class MainViewModelTest {
 
     @Test
     fun test_N_days_and_reinit() {
-        val repo = FakeRepository(5)
+        val repo = FakeRepository.Base(5)
         val communication = FakeMainCommunication.Base()
 
         val viewModel = MainViewModel(repo, communication)
@@ -42,13 +57,26 @@ class MainViewModelTest {
     }
 }
 
-class FakeRepository(private val days: Int) : MainRepository {
-    override fun days(): Int {
-        return days;
+private interface FakeRepository : MainRepository {
+
+    class Base(private val days: Int) : FakeRepository {
+        private var resetCalledCount = 0
+
+        override fun days(): Int {
+            return days;
+        }
+
+        override fun reset() {
+            resetCalledCount++
+        }
+
+        fun checkResetCalledCount(calledCount: Int): Any? {
+            return resetCalledCount == calledCount
+        }
     }
 }
 
-private interface FakeMainCommunication : MainCommunication.Mutable  {
+private interface FakeMainCommunication : MainCommunication.Mutable {
     fun isSame(value: UiState): Boolean
     fun checkCalledCount(count: Int): Boolean
 
