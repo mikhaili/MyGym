@@ -17,7 +17,7 @@ class MainViewModel(
         if (isFirstRun) {
             val days = repository.days()
             val value: UiState = if (days == 0)
-                UiState.ZeroDays
+                UiState.ZeroDays()
             else
                 UiState.NDays(days)
 
