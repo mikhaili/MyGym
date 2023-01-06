@@ -1,6 +1,9 @@
 package com.mikhaili.mygym
 
 import android.provider.CalendarContract.EventDays
+import android.view.View
+import android.widget.Button
+import android.widget.TextView
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
@@ -54,11 +57,20 @@ interface MainCommunication {
 }
 
 sealed class UiState {
-    object ZeroDays : UiState() {
+    abstract fun apply(dayTextView: TextView, resetBtn: Button)
+    data class ZeroDays(private val days: Int = 0) : UiState() {
+        override fun apply(dayTextView: TextView, resetBtn: Button) {
+            dayTextView.text = days.toString()
+            resetBtn.visibility = View.GONE
+        }
 
     }
 
     data class NDays(private val days: Int) : UiState() {
+        override fun apply(dayTextView: TextView, resetBtn: Button) {
+            dayTextView.text = days.toString()
+            resetBtn.visibility = View.VISIBLE
+        }
 
 
     }
