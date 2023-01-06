@@ -1,5 +1,7 @@
 package com.mikhaili.mygym
 
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -46,9 +48,9 @@ class FakeRepository(private val days: Int) : MainRepository {
     }
 }
 
-interface FakeMainCommunication : MainCommunication.Put {
+private interface FakeMainCommunication : MainCommunication.Mutable  {
     fun isSame(value: UiState): Boolean
-    fun checkCalledCount(): Int
+    fun checkCalledCount(count: Int): Boolean
 
     class Base : FakeMainCommunication {
         private var callCount = 0
@@ -61,5 +63,7 @@ interface FakeMainCommunication : MainCommunication.Put {
             callCount++
             state = value
         }
+
+        override fun observer(owner: LifecycleOwner, observer: Observer<UiState>) = Unit
     }
 }
