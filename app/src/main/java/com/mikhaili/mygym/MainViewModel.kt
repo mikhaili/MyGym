@@ -19,8 +19,8 @@ class MainViewModel(
         }
     }
 
-    override fun observer(owner: LifecycleOwner, observer: Observer<UiState>) {
-        communication.observer(owner, observer)
+    override fun observe(owner: LifecycleOwner, observer: Observer<UiState>) {
+        communication.observe(owner, observer)
     }
 
     fun reset() {

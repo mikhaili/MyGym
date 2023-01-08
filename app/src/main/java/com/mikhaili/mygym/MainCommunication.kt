@@ -10,7 +10,7 @@ interface MainCommunication {
     }
 
     interface Observe {
-        fun observer(owner: LifecycleOwner, observer: Observer<UiState>)
+        fun observe(owner: LifecycleOwner, observer: Observer<UiState>)
     }
 
     interface Mutable : Put, Observe
@@ -21,7 +21,7 @@ interface MainCommunication {
             liveData.value = value
         }
 
-        override fun observer(owner: LifecycleOwner, observer: Observer<UiState>) =
+        override fun observe(owner: LifecycleOwner, observer: Observer<UiState>) =
             liveData.observe(owner, observer)
     }
 }

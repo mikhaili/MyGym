@@ -5,6 +5,7 @@ import androidx.lifecycle.Observer
 import org.junit.Test
 
 import org.junit.Assert.*
+import org.junit.Before
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -12,37 +13,43 @@ import org.junit.Assert.*
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 class MainRepositoryTest {
+    @Before
+    fun setUp() {
+
+    }
+
     @Test
     fun test_days_saved_in_datasource() {
         val cacheDataSource = FakeDataSource()
         val now = FakeNow.Base()
-        val sud = MainRepository.Base(cacheDataSource, now)
-        assertEquals(0, sud.days())
+        val repository = MainRepository.Base(cacheDataSource, now)
         now.addTime(1544)
-        assertEquals(1544, cacheDataSource.time(-1L))
+        val actual = repository.days()
+        val expected = 0
+        assertEquals(expected, actual)
+        assertEquals(1544, cacheDataSource.time(-1))
     }
 
     @Test
     fun test_days() {
         val cacheDataSource = FakeDataSource()
-        cacheDataSource.saveTime(Days(2).toMill())
+        cacheDataSource.save(Days(2).toMill())
         val now = FakeNow.Base()
         val sud = MainRepository.Base(cacheDataSource, now)
-
-        assertEquals(0, sud.days())
         now.addTime(Days(9).toMill())
+
         assertEquals(7, sud.days())
     }
 
     @Test
     fun test_reset() {
         val cacheDataSource = FakeDataSource()
-        cacheDataSource.saveTime(Days(2).toMill())
+        cacheDataSource.save(Days(2).toMill())
         val now = FakeNow.Base()
         val sud = MainRepository.Base(cacheDataSource, now)
+        now.addTime(1544)
 
         sud.reset()
-        now.addTime(1544)
         assertEquals(1544, cacheDataSource.time(-1L))
         assertEquals(0, sud.days())
     }
@@ -69,7 +76,7 @@ private interface FakeNow : Now {
 private class FakeDataSource : CacheDataSource {
 
     private var time: Long = -100L
-    override fun saveTime(time: Long) {
+    override fun save(time: Long) {
         this.time = time;
     }
 

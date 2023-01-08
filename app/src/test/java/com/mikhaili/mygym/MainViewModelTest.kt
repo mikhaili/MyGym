@@ -92,6 +92,6 @@ private interface FakeMainCommunication : MainCommunication.Mutable {
             state = value
         }
 
-        override fun observer(owner: LifecycleOwner, observer: Observer<UiState>) = Unit
+        override fun observe(owner: LifecycleOwner, observer: Observer<UiState>) = Unit
     }
 }
