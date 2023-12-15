@@ -28,11 +28,11 @@ jobs:
           java-version: 1.8
 
       - name: Grant execute permission for scripts
-        run: chmod +x ./scripts/hotfix_release/prepare_release_branch.sh
+        run: chmod +x ./scripts/release/hotfix_release/prepare_release_branch.sh
 
       - name: Prepare release branch
         run:
-          ./scripts/hotfix_release/prepare_release_branch.sh ${{ github.event.inputs.version }}
+          ./scripts/release/hotfix_release/prepare_release_branch.sh ${{ github.event.inputs.version }}
 
   create-pr:
     needs: build
