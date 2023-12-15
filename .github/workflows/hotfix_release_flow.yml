@@ -9,9 +9,6 @@ on:
       version:
         description: 'Version'
         required: true
-      branch_name:
-        description: 'Branch Name'
-        required: true
       slack_channel:
         description: 'Slack channel'
         required: false # This is optional
