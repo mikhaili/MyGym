@@ -32,7 +32,7 @@ jobs:
           git checkout -b release/${{ github.event.inputs.version }}
           
           ./scripts/release/hotfix_release/update_sdk_version.sh ${{ github.event.inputs.version }}
-         
+          git add --all
           git status
           if git diff-index --quiet HEAD --; then
             echo "No changes to commit."
