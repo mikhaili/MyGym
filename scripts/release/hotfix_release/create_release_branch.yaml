@@ -1,4 +1,4 @@
-name: Android SDK Release
+name: Create Release Branch
 
 on:
   workflow_dispatch:
@@ -11,8 +11,9 @@ on:
         required: false
 
 jobs:
-  build:
+  create_branch:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -21,6 +22,12 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+
+      - name: Set Git user Info
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+
       - name: Grant scripts permission
         run: |
           chmod +x ./scripts/release/hotfix_release/update_sdk_version.sh
@@ -38,11 +45,6 @@ jobs:
             git commit -m "Release ${{ github.event.inputs.version }}"
           fi
           git status
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v3
-        with:
-          title: Release ${{ github.event.inputs.version }}
-          commit-message: Release ${{ github.event.inputs.version }}
-          branch: release/${{ github.event.inputs.version }}
-          base: master
-          delete-branch: true
+          
+          git checkout -b release/${{ github.event.inputs.version }}
+          git push -u origin release/${{ github.event.inputs.version }}

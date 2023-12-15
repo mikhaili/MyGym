@@ -1,0 +1,41 @@
+name: Build SDK and Create PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'
+        required: true
+      slack_channel:
+        description: 'Slack Channel'
+        required: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: release/${{ github.event.inputs.version }}
+
+      - name: Build SDK
+        run: ./gradlew assembleRelease
+
+  create-pr:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: release/${{ github.event.inputs.version }}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          title: Release ${{ github.event.inputs.version }}
+          commit-message: Release ${{ github.event.inputs.version }}
+          branch: create-pr-${{ github.run_id }}
+          base: master
+          delete-branch: true

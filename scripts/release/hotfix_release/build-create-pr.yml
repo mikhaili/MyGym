@@ -1,0 +1,47 @@
+name: Build SDK and Create PR
+
+on:
+  workflow_run:
+    workflows: ['Create Release Branch']
+    types:
+      - completed
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Version
+        uses: actions/download-artifact@v2
+        with:
+          name: version
+          path: version.txt
+
+      - name: Read Version
+        id: version
+        run: echo "::set-output name=version::$(cat version.txt)"
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: release/${{ steps.version.outputs.version }}
+
+      - name: Build SDK
+        run: echo "Build SDK"
+
+  create-pr:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: release/${{ steps.version.outputs.version }}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          title: Release ${{ steps.version.outputs.version }}
+          commit-message: Release ${{ steps.version.outputs.version }}
+          branch: create-pr-${{ github.run_id }}
+          base: master
+          delete-branch: true

@@ -1,0 +1,41 @@
+name: Create Release Branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'
+        required: true
+      slack_channel:
+        description: 'Slack Channel'
+        required: false
+
+jobs:
+  create_branch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: Set Git user Info
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+
+      - name: Create Release Branch
+        run: |
+          git checkout -b release/${{ github.event.inputs.version }}
+          git push -u origin release/${{ github.event.inputs.version }}
+
+      - name: Archive Version
+        uses: actions/upload-artifact@v2
+        with:
+          name: version
+          path: |
+            version.txt

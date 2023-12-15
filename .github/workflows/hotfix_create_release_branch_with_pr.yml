@@ -1,0 +1,48 @@
+name: Create Release branch with PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'
+        required: true
+      slack_channel:
+        description: 'Slack Channel'
+        required: false
+
+jobs:
+  release-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Grant scripts permission
+        run: |
+          chmod +x ./scripts/release/hotfix_release/update_sdk_version.sh
+      - name: Create Release Branch
+        shell: bash
+        run: |
+          git config --global user.name 'Github Actions'
+          git config --global user.email 'github-actions@users.noreply.github.com'
+          ./scripts/release/hotfix_release/update_sdk_version.sh ${{ github.event.inputs.version }}
+          git add --all
+          git status
+          if git diff-index --quiet HEAD --; then
+            echo "No changes to commit."
+          else
+            git commit -m "Release ${{ github.event.inputs.version }}"
+          fi
+          git status
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          title: Release ${{ github.event.inputs.version }}
+          commit-message: Release ${{ github.event.inputs.version }}
+          branch: release/${{ github.event.inputs.version }}
+          base: master
+          delete-branch: true
