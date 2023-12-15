@@ -1,16 +1,7 @@
 name: Release and Notify
+
 on:
   workflow_dispatch:
-    inputs:
-      version_number:
-        description: Release version number
-        required: true
-      slack_channel:
-        description: Slack channel to notify
-        required: false
-      recipient_list:
-        description: Comma-separated list of email addresses to notify
-        required: false
 
 jobs:
   release:
@@ -28,8 +19,8 @@ jobs:
           git fetch origin
           git merge origin/release
           if [ $? -ne 0 ]; then
-           echo "Merge conflicts detected! Please resolve them and try again."
-           exit 1
+            echo "Merge conflicts detected! Please resolve them and try again."
+            exit 1
           fi
       - name: Tag the release version
         run: |
@@ -37,31 +28,42 @@ jobs:
       - name: Push changes to remote
         run: git push origin master --tags
       - name: Merge release branch to develop (optional)
-        run: git checkout develop
         if: startsWith(github.ref, 'refs/heads/develop')
-          git merge origin/release
-          if [ $? -ne 0 ]; then
-           echo "Merge conflicts detected! Please resolve them and try again."
-           exit 1
-          fi
+        steps:
+        - name: Checkout develop branch
+          run: git checkout develop
+        - name: Merge origin/release
+          run: |
+            git merge origin/release
+            if [ $? -ne 0 ]; then
+              echo "Merge conflicts detected! Please resolve them and try again."
+              exit 1
+            fi
       - name: Generate release notes
         run: |
-          echo "Release v${{ inputs.version_number }}" > release_notes.txt
-          echo "=============================" >> release_notes.txt
-          echo "" >> release_notes.txt
-          echo "Changes:" >> release_notes.txt
-          echo "" >> release_notes.txt
-          git log --pretty=format:"%h - %s (%an)" v${{ inputs.version_number }}..HEAD >> release_notes.txt
-        # use your preferred method for generating release notes, e.g., git-chglog
-        # run: git-chglog > release_notes.txt
+          # Use your preferred method for generating release notes
+          git-chglog > release_notes.txt
       - name: Send notification emails
+        if: ${{ inputs.recipient_list }}
         run: |
           cat release_notes.txt | mail -s "Version v${{ inputs.version_number }} Released!" "${{ inputs.recipient_list }}"
-      - name: Send Slack notification
+      - name: Send Slack notification (if channel provided)
+        if: ${{ inputs.slack_channel }}
         run: |
-          curl -X POST -H 'Content-Type: application/json' -d '{"text": "Version v${{ inputs.version_number }} has been released! See release notes:\n<release_notes_url>"}' https://hooks.slack.com/services/...
+          curl -X POST -H 'Content-Type: application/json' -d '{"text": "Version v${{ inputs.version_number }} has been released in channel #${{ inputs.slack_channel }}! See release notes:\n<release_notes_url>"}' "${{ inputs.slack_channel }}"
       - name: Clean up
         run: git checkout master
       - name: Success message
         run: echo "Version v${{ inputs.version_number }} has been successfully released!"
+
+inputs:
+  version_number:
+    description: Release version number
+    required: true
+  recipient_list:
+    description: Comma-separated list of email addresses to notify
+    required: false
+  slack_channel:
+    description: Slack channel to notify (without # symbol)
+    required: false
 
