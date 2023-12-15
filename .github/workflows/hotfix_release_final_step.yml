@@ -1,69 +1,86 @@
-name: Release and Notify
+name: Android SDK Release
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'
+        required: true
+      slack_channel:
+        description: 'Slack Channel'
+        required: true
 
 jobs:
-  release:
+  merge:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Get inputs
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Config Git
         run: |
-          echo "VERSION_NUMBER=${{ inputs.version_number }}"
-          echo "RECIPIENT_LIST=${{ inputs.recipient_list }}"
-          echo "SLACK_CHANNEL=${{ inputs.slack_channel }}"
-      - name: Merge release branch to master
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+      - name: Merge release to master
+        env:
+          BRANCH_NAME: release/${{ github.event.inputs.version }}
+          RELEASE_NOTES: ${{ env.RELEASE_NOTES }}
+          SDK_VERSION: ${{ env.SDK_VERSION }}
         run: |
           git checkout master
-          git fetch origin
-          git merge origin/release
+          git merge --no-ff $BRANCH_NAME
           if [ $? -ne 0 ]; then
-            echo "Merge conflicts detected! Please resolve them and try again."
-            exit 1
+                echo "Merge conflicts detected! Please resolve them and try again."
+                exit 1
           fi
-      - name: Tag the release version
-        run: |
-          git tag -a v${{ inputs.version_number }} -m "Release v${{ inputs.version_number }}"
-      - name: Push changes to remote
-        run: git push origin master --tags
-      - name: Merge release branch to develop (optional)
+          git push origin master
+      - name: Merge master to develop
         if: startsWith(github.ref, 'refs/heads/develop')
-        steps:
-        - name: Checkout develop branch
-          run: git checkout develop
-        - name: Merge origin/release
-          run: |
-            git merge origin/release
-            if [ $? -ne 0 ]; then
-              echo "Merge conflicts detected! Please resolve them and try again."
-              exit 1
-            fi
-      - name: Generate release notes
         run: |
-          # Use your preferred method for generating release notes
-          git-chglog > release_notes.txt
-      - name: Send notification emails
-        if: ${{ inputs.recipient_list }}
-        run: |
-          cat release_notes.txt | mail -s "Version v${{ inputs.version_number }} Released!" "${{ inputs.recipient_list }}"
-      - name: Send Slack notification (if channel provided)
-        if: ${{ inputs.slack_channel }}
-        run: |
-          curl -X POST -H 'Content-Type: application/json' -d '{"text": "Version v${{ inputs.version_number }} has been released in channel #${{ inputs.slack_channel }}! See release notes:\n<release_notes_url>"}' "${{ inputs.slack_channel }}"
-      - name: Clean up
-        run: git checkout master
-      - name: Success message
-        run: echo "Version v${{ inputs.version_number }} has been successfully released!"
+        # Create a new branch from master
+          git checkout -b master_after_merge_$SDK_VERSION master
+    
+        # Switch to develop branch and merge the new branch
+          git checkout develop
+          git merge --no-ff master_after_merge_$SDK_VERSION
+          
+        # Check if merge was successful
+          if [ $? -ne 0 ]; then
+          echo "Merge conflicts detected! Please resolve them and try again."
+          exit 1
+          fi
+          
+        # Push changes to remote develop branch and delete the temporary branch
+          git push origin develop
+          git branch -D master_after_merge_$SDK_VERSION
 
-inputs:
-  version_number:
-    description: Release version number
-    required: true
-  recipient_list:
-    description: Comma-separated list of email addresses to notify
-    required: false
-  slack_channel:
-    description: Slack channel to notify (without # symbol)
-    required: false
-
+  notify:
+    needs: merge
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify on Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          fields: message
+          custom_payload: |
+            {
+              "text": "Workflow dispatched",
+              "channel": "${{ github.event.inputs.slack_channel }}",
+              "attachments": [{
+                "text": "Version: $SDK_VERSION was released"
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Send mail
+        uses: dawidd6/action-send-mail@v2
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: Version released
+          to: user@example.com
+          body: Version ${{ github.event.inputs.version }} was released.
