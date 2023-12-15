@@ -56,6 +56,6 @@ jobs:
         with:
           title: Release ${{ github.event.inputs.version }}
           commit-message: Release ${{ github.event.inputs.version }}
-          branch: create-pr-${{ github.run_id }}
+          branch: release/${{ github.event.inputs.version }}
           base: master
           delete-branch: true
