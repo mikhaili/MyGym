@@ -1,0 +1,62 @@
+name: Hotfix Release Android SDK
+
+on:
+  #git action have to wait input from user
+  #end open PR with the new version and branch name
+
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'
+        required: true
+      branch_name:
+        description: 'Branch Name'
+        required: true
+      slack_channel:
+        description: 'Slack channel'
+        required: false # This is optional
+
+jobs:
+  build:
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: Grant execute permission for scripts
+        run: chmod +x ./scripts/hotfix_release/prepare_release_branch.sh
+
+      - name: Prepare release branch
+        run:
+          ./scripts/hotfix_release/prepare_release_branch.sh ${{ github.event.inputs.branch_name }} ${{ github.event.inputs.version }}
+
+  create-pr:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          title: Update master with ${{ github.event.inputs.version }}
+          commit-message: Update master with ${{ github.event.inputs.version }}
+          branch: create-pr-${{ github.run_id }}
+          delete-branch: false
+
+      - name: Prepare release candidate
+      - name: Verify release candidate
+      - name: Upload to private git
+      - name: Build Regression Tester
+      - name: Notify Regression Tester Ready
+      - name: Notify Slack and Email
+
+
