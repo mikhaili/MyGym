@@ -31,8 +31,8 @@ jobs:
           git checkout master
           git merge --no-ff $BRANCH_NAME
           if [ $? -ne 0 ]; then
-                echo "Merge conflicts detected! Please resolve them and try again."
-                exit 1
+            echo "Merge conflicts detected! Please resolve them and try again."
+            exit 1
           fi
           git push origin master
       - name: Merge master to develop
@@ -47,8 +47,8 @@ jobs:
           
         # Check if merge was successful
           if [ $? -ne 0 ]; then
-          echo "Merge conflicts detected! Please resolve them and try again."
-          exit 1
+            echo "Merge conflicts detected! Please resolve them and try again."
+            exit 1
           fi
           
         # Push changes to remote develop branch and delete the temporary branch
