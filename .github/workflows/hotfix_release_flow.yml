@@ -53,10 +53,16 @@ jobs:
           delete-branch: false
 
       - name: Prepare release candidate
+        run: echo "Prepare release candidate"
       - name: Verify release candidate
+        run: echo "Verify release candidate"
       - name: Upload to private git
+        run: echo "Upload to private git"
       - name: Build Regression Tester
+        run: echo "Build Regression Tester"
       - name: Notify Regression Tester Ready
+        run: echo "Notify Regression Tester Ready"
       - name: Notify Slack and Email
+        run: echo "Notify Slack and Email"
 
 
