@@ -45,13 +45,19 @@ jobs:
            exit 1
           fi
       - name: Generate release notes
+        run: |
+          echo "Release v${{ inputs.version_number }}" > release_notes.txt
+          echo "=============================" >> release_notes.txt
+          echo "" >> release_notes.txt
+          echo "Changes:" >> release_notes.txt
+          echo "" >> release_notes.txt
+          git log --pretty=format:"%h - %s (%an)" v${{ inputs.version_number }}..HEAD >> release_notes.txt
         # use your preferred method for generating release notes, e.g., git-chglog
         # run: git-chglog > release_notes.txt
       - name: Send notification emails
         run: |
           cat release_notes.txt | mail -s "Version v${{ inputs.version_number }} Released!" "${{ inputs.recipient_list }}"
       - name: Send Slack notification
-        # replace with your actual Slack webhook URL
         run: |
           curl -X POST -H 'Content-Type: application/json' -d '{"text": "Version v${{ inputs.version_number }} has been released! See release notes:\n<release_notes_url>"}' https://hooks.slack.com/services/...
       - name: Clean up
