@@ -35,7 +35,7 @@ jobs:
 
       - name: Prepare release branch
         run:
-          ./scripts/hotfix_release/prepare_release_branch.sh ${{ github.event.inputs.branch_name }} ${{ github.event.inputs.version }}
+          ./scripts/hotfix_release/prepare_release_branch.sh ${{ github.event.inputs.version }}
 
   create-pr:
     needs: build
