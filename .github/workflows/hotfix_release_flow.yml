@@ -27,7 +27,9 @@ jobs:
       - name: Create Release Branch
         run: |
           git checkout -b release/${{ github.event.inputs.version }}
-          
+          ./scripts/release/hotfix_release/update_sdk_version.sh ${{ github.event.inputs.version }}
+          git add .
+          git commit -m "Release ${{ github.event.inputs.version }}"
           git push -u origin release/${{ github.event.inputs.version }}
 
   create-pr:
