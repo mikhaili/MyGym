@@ -3,6 +3,9 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+ext {
+    sdkVersion = "123"
+}
 android {
     namespace 'com.mikhaili.mygym'
     compileSdk 33

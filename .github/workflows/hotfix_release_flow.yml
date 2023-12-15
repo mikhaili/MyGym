@@ -21,10 +21,13 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-
+      - name: Grant scripts permission
+        run: |
+          chmod +x ./scripts/release/hotfix_release/update_sdk_version.sh
       - name: Create Release Branch
         run: |
           git checkout -b release/${{ github.event.inputs.version }}
+          
           git push -u origin release/${{ github.event.inputs.version }}
 
   create-pr:
