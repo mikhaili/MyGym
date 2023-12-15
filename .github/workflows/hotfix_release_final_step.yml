@@ -1,0 +1,54 @@
+name: Release and Notify
+on:
+  push:
+    branches: [ release ]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Get inputs
+        run: |
+          echo "VERSION_NUMBER=${{ inputs.version_number }}"
+          echo "RECIPIENT_LIST=${{ inputs.recipient_list }}"
+      - name: Merge release branch to master
+        run: |
+          git checkout master
+          git fetch origin
+          git merge origin/release
+          if [ $? -ne 0 ]; then
+            echo "Merge conflicts detected! Please resolve them and try again."
+            exit 1
+          fi
+      - name: Tag the release version
+        run: |
+          git tag -a v${{ inputs.version_number }} -m "Release v${{ inputs.version_number }}"
+      - name: Push changes to remote
+        run: git push origin master --tags
+      - name: Merge release branch to develop (optional)
+        # uncomment and adjust if needed
+        # run: git checkout develop && git merge origin/release
+      - name: Generate release notes
+        # use your preferred method for generating release notes, e.g., git-chglog
+        # run: git-chglog > release_notes.txt
+      - name: Send notification emails
+        run: |
+          cat release_notes.txt | mail -s "Version v${{ inputs.version_number }} Released!" "${{ inputs.recipient_list }}"
+      - name: Send Slack notification
+        # replace with your actual Slack webhook URL
+        run: |
+          curl -X POST -H 'Content-Type: application/json' -d '{"text": "Version v${{ inputs.version_number }} has been released! See release notes:\n<release_notes_url>"}' https://hooks.slack.com/services/...
+      - name: Clean up
+        run: git checkout master
+      - name: Success message
+        run: echo "Version v${{ inputs.version_number }} has been successfully released!"
+
+inputs:
+  version_number:
+    description: Release version number
+    required: true
+  recipient_list:
+    description: Comma-separated list of email addresses to notify
+    required: true
+
