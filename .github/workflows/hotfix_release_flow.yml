@@ -25,13 +25,28 @@ jobs:
         run: |
           chmod +x ./scripts/release/hotfix_release/update_sdk_version.sh
       - name: Create Release Branch
+        shell: bash
         run: |
+          git config --global user.name 'Github Actions'
+          git config --global user.email 'github-actions@users.noreply.github.com'
           git checkout -b release/${{ github.event.inputs.version }}
+          
           ./scripts/release/hotfix_release/update_sdk_version.sh ${{ github.event.inputs.version }}
+         
           git add .
+                    git status
+          if git diff-index --quiet HEAD --; then
+            echo "No changes to commit."
+          else
+            git commit -m "Release ${{ inputs.artifact-name }} Adapter ${ADAPTER_VERSION} Supports SDK ${SDK_VERSION}"
+            for i in {1..5}; do
+              git pull --rebase && git push && break || echo "Retry $i"
+            done
+          fi
+          git status
+
           git commit -m "Release ${{ github.event.inputs.version }}"
           git push -u origin release/${{ github.event.inputs.version }}
-
   create-pr:
     needs: build
     runs-on: ubuntu-latest
