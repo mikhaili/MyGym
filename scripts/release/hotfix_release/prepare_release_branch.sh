@@ -41,7 +41,7 @@ export GIT_SHA="`git log --pretty=format:'%h' -n 1`"
 #bash "$SHARED_SCRIPTS_DIR/checkout_master.sh"
 
 git checkout -b $RELEASE_BRANCH
-updateSDKVersion $RELEASE_VERSION
+#updateSDKVersion $RELEASE_VERSION
 
 git add .
 git commit -m "Hotfix release: $RELEASE_BRANCH"
