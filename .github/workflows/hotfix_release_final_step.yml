@@ -27,7 +27,7 @@ jobs:
           git config --global user.name 'Github Actions'
           git config --global user.email 'github-actions@users.noreply.github.com'
           git checkout master
-          git merge --no-ff $BRANCH_NAME
+          git pull --no-ff origin $BRANCH_NAME
           # Check if merge was successful
           if [ $? -ne 0 ]; then
           echo "Merge conflicts detected! Please resolve them and try again."
