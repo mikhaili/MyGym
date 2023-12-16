@@ -30,13 +30,13 @@ jobs:
         run: |
           git checkout master
           git merge --no-ff $BRANCH_NAME
+        # Check if merge was successful
           if [ $? -ne 0 ]; then
-            echo "Merge conflicts detected! Please resolve them and try again."
-            exit 1
+           echo "Merge conflicts detected! Please resolve them and try again."
+           exit 1
           fi
           git push origin master
       - name: Merge master to develop
-        if: startsWith(github.ref, 'refs/heads/develop')
         run: |
         # Create a new branch from master
           git checkout -b master_after_merge_$SDK_VERSION master
@@ -44,7 +44,6 @@ jobs:
         # Switch to develop branch and merge the new branch
           git checkout develop
           git merge --no-ff master_after_merge_$SDK_VERSION
-          
         # Check if merge was successful
           if [ $? -ne 0 ]; then
             echo "Merge conflicts detected! Please resolve them and try again."
