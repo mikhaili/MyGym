@@ -1,0 +1,51 @@
+name: Update Demo App
+on:
+  workflow_dispatch:
+
+jobs:
+
+  # Clone demo app
+  # change version in demo app
+  # create release branch
+  # build demo app
+  # create PR
+
+  clone-demo-app:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Clone Demo App
+        run: |
+          git clone git@github.com:ironsource-mobile/Mediation-Demo-Apps.git
+      - name: Create Release Branch
+        shell: bash
+        run: |
+          git config --global user.name 'Github Actions'
+          git config --global user.email 'github-actions@users.noreply.github.com'
+          
+          chmod +x ./scripts/release/hotfix_release/update_sdk_version.sh
+          ./scripts/release/hotfix_release/update_sdk_version.sh ${{ github.event.inputs.version }} "Java/app/build.gradle"
+          ./scripts/release/hotfix_release/update_sdk_version.sh ${{ github.event.inputs.version }} "Kotlin/app/build.gradle"
+          cd Mediation-Demo-Apps
+
+          git checkout -b release/${{ github.event.inputs.version }}
+          git add --all
+          git commit -m "Release ${{ github.event.inputs.version }}"
+          git push -u origin release/${{ github.event.inputs.version }}
+  open-pr:
+    needs: clone-demo-app
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: release/${{ github.event.inputs.version }}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          title: Release ${{ github.event.inputs.version }}
+          commit-message: test ${{ github.event.inputs.version }}
+          branch: test/${{ github.event.inputs.version }}
+          base: master
+          delete-branch: true

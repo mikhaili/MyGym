@@ -33,6 +33,8 @@ if [ -z "$1" ]; then
 fi
 
 export RELEASE_VERSION="$1"
-export BUILD_GRADLE_PATH="app/build.gradle"
+export DEFAULT_BUILD_GRADLE_PATH="app/build.gradle"
+#if no parameter is passed, the default path is app/build.gradle
+export BUILD_GRADLE_PATH=${2:-DEFAULT_BUILD_GRADLE_PATH}
 
 updateSDKVersion $RELEASE_VERSION $BUILD_GRADLE_PATH

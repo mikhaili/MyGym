@@ -1,0 +1,38 @@
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'
+        required: true
+      slack_channel:
+        description: 'Slack Channel'
+        required: false
+  jobs:
+    build:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v3
+        - name:
+            Steps for release:
+          run: |
+            echo "Upload to public git using this job with the same release candidate number added to the S3_BUILD_NUMBER job parameter making sure the release notes say ‘Mediation release version 7.1.13.1’ with the relevant sdk version. The link should arrive via mail"
+            echo "Update in the demo repository the mediation version in Java/app/build.gradle and Kotlin/app/build.gradle"
+            echo "Update version here"
+            echo "Update version date and status here"
+            echo "Update version with version features here"
+            echo "Merge release branch to develop and update slack [relevant channel]"
+            echo "Merge release branch to master and update slack [relevant channel]"
+            echo "Close relevant jira tickets"
+            echo "Schedule retro"
+            echo "Email version to your-email@aaa.com  with link from public git"
+
+
+
+
+
+
+
+
+
+
