@@ -1,4 +1,4 @@
-name: Android SDK Release
+name: Merge and Notify
 
 on:
   workflow_dispatch:
@@ -18,41 +18,42 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Config Git
-        run: |
-          git config --global user.name 'Github Actions'
-          git config --global user.email 'github-actions@users.noreply.github.com'
       - name: Merge release to master
         env:
           BRANCH_NAME: release/${{ github.event.inputs.version }}
           RELEASE_NOTES: ${{ env.RELEASE_NOTES }}
           SDK_VERSION: ${{ env.SDK_VERSION }}
         run: |
+          git config --global user.name 'Github Actions'
+          git config --global user.email 'github-actions@users.noreply.github.com'
           git checkout master
           git merge --no-ff $BRANCH_NAME
-        # Check if merge was successful
+          # Check if merge was successful
           if [ $? -ne 0 ]; then
-           echo "Merge conflicts detected! Please resolve them and try again."
-           exit 1
+          echo "Merge conflicts detected! Please resolve them and try again."
+          exit 1
           fi
           git push origin master
       - name: Merge master to develop
         run: |
-        # Create a new branch from master
-          git checkout -b master_after_merge_$SDK_VERSION master
-    
-        # Switch to develop branch and merge the new branch
-          git checkout develop
-          git merge --no-ff master_after_merge_$SDK_VERSION
-        # Check if merge was successful
-          if [ $? -ne 0 ]; then
-            echo "Merge conflicts detected! Please resolve them and try again."
-            exit 1
-          fi
+          run: |
+          git config --global user.name 'Github Actions'
+          git config --global user.email 'github-actions@users.noreply.github.com'
+          # Create a new branch from master
+               git checkout -b master_after_merge_$SDK_VERSION master
           
-        # Push changes to remote develop branch and delete the temporary branch
-          git push origin develop
-          git branch -D master_after_merge_$SDK_VERSION
+          # Switch to develop branch and merge the new branch
+               git checkout develop
+               git merge --no-ff master_after_merge_$SDK_VERSION
+          # Check if merge was successful
+               if [ $? -ne 0 ]; then
+               echo "Merge conflicts detected! Please resolve them and try again."
+               exit 1
+               fi
+          
+          # Push changes to remote develop branch and delete the temporary branch
+               git push origin develop
+               git branch -D master_after_merge_$SDK_VERSION
 
   notify:
     needs: merge
