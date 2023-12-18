@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Checkout code
         run: |
-          git clone git@github.com:ironsource-mobile/Mediation-Demo-Apps.git
+          git clone https://github.com/ironsource-mobile/Mediation-Demo-Apps.git
       - name: Create Release Branch
         shell: bash
         run: |
