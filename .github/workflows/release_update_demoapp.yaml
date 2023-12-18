@@ -1,19 +1,14 @@
 name: Update Demo App
 on:
   workflow_dispatch:
-
-jobs:
-
-  # Clone demo app
-  # change version in demo app
-  # create release branch
-  # build demo app
-  # create PR
-
+    inputs:
+      version:
+        description: 'Version'
+        required: true
+  jobs:
   clone-demo-app:
     runs-on: ubuntu-latest
     steps:
-
       - name: Clone Demo App
         run: |
           git clone git@github.com:ironsource-mobile/Mediation-Demo-Apps.git
