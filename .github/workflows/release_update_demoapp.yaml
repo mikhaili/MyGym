@@ -1,19 +1,20 @@
 name: Update Demo App
+
 on:
   workflow_dispatch:
     inputs:
       version:
         description: 'Version'
-        required: false
+        required: true
       slack_channel:
         description: 'Slack Channel'
-        required: false
+        required: true
 
 jobs:
-  clone_demo_app:
+  update-demo-app:
     runs-on: ubuntu-latest
     steps:
-      - name: Clone Demo App
+      - name: Checkout code
         run: |
           git clone git@github.com:ironsource-mobile/Mediation-Demo-Apps.git
       - name: Create Release Branch
