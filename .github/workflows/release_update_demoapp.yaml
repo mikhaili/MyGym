@@ -22,7 +22,8 @@ jobs:
         run: |
           git config --global user.name 'Github Actions'
           git config --global user.email 'github-actions@users.noreply.github.com'
-          
+          ls -l
+          git status
           chmod +x ./scripts/release/hotfix_release/update_sdk_version.sh
           cd Mediation-Demo-Apps
           ../scripts/release/hotfix_release/update_sdk_version.sh ${{ github.event.inputs.version }} "Java/app/build.gradle"
