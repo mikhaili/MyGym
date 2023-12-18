@@ -33,7 +33,7 @@ jobs:
           git commit -m "Release ${{ github.event.inputs.version }}"
         #  git push -u origin release/${{ github.event.inputs.version }}
   open-pr:
-    needs: clone-demo-app
+    needs: update-demo-app
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
