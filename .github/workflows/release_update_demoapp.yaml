@@ -24,14 +24,14 @@ jobs:
           git config --global user.email 'github-actions@users.noreply.github.com'
           
           chmod +x ./scripts/release/hotfix_release/update_sdk_version.sh
-          ./scripts/release/hotfix_release/update_sdk_version.sh ${{ github.event.inputs.version }} "Java/app/build.gradle"
-          ./scripts/release/hotfix_release/update_sdk_version.sh ${{ github.event.inputs.version }} "Kotlin/app/build.gradle"
           cd Mediation-Demo-Apps
+          ../scripts/release/hotfix_release/update_sdk_version.sh ${{ github.event.inputs.version }} "Java/app/build.gradle"
+          ../scripts/release/hotfix_release/update_sdk_version.sh ${{ github.event.inputs.version }} "Kotlin/app/build.gradle"
 
           git checkout -b release/${{ github.event.inputs.version }}
           git add --all
           git commit -m "Release ${{ github.event.inputs.version }}"
-          git push -u origin release/${{ github.event.inputs.version }}
+        #  git push -u origin release/${{ github.event.inputs.version }}
   open-pr:
     needs: clone-demo-app
     runs-on: ubuntu-latest
