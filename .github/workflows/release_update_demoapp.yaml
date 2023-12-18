@@ -4,9 +4,13 @@ on:
     inputs:
       version:
         description: 'Version'
-        required: true
+        required: false
+      slack_channel:
+        description: 'Slack Channel'
+        required: false
+
 jobs:
-  clone-demo-app:
+  clone_demo_app:
     runs-on: ubuntu-latest
     steps:
       - name: Clone Demo App
