@@ -14,6 +14,8 @@ jobs:
   update-demo-app:
     runs-on: ubuntu-latest
     steps:
+      - name: Check out this repo
+        uses: actions/checkout@v4
       - name: Checkout code
         run: |
           git clone https://github.com/ironsource-mobile/Mediation-Demo-Apps.git
